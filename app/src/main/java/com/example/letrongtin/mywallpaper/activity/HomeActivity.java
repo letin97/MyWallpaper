@@ -27,7 +27,6 @@ import android.widget.Toast;
 import com.example.letrongtin.mywallpaper.R;
 import com.example.letrongtin.mywallpaper.adapter.MyFragmentAdapter;
 import com.example.letrongtin.mywallpaper.common.Common;
-import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity
@@ -69,19 +68,6 @@ public class HomeActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        // Check sign in
-
-
-
-        if (FirebaseAuth.getInstance().getCurrentUser() == null){
-            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder()
-                    .build(), Common.SIGN_IN_REQUEST_CODE);
-        }
-        else {
-            Snackbar.make(drawer, new StringBuilder("Welcome")
-                    .append(FirebaseAuth.getInstance().getCurrentUser().getEmail()), Snackbar.LENGTH_LONG).show();
-        }
 
         loadUserInformation();
     }

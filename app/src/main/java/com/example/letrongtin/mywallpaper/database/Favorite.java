@@ -9,8 +9,8 @@ import android.support.annotation.NonNull;
  * Created by Le Trong Tin on 3/23/2018.
  */
 
-@Entity(tableName = "recents", primaryKeys = {"imageLink"})
-public class Recents {
+@Entity(tableName = "favorite", primaryKeys = {"imageLink"})
+public class Favorite {
 
     @ColumnInfo(name = "imageLink")
     @NonNull
@@ -22,7 +22,7 @@ public class Recents {
     @ColumnInfo(name = "key")
     private String key;
 
-    public Recents(@NonNull String imageLink, String saveTime, String key) {
+    public Favorite(@NonNull String imageLink, String saveTime, String key) {
         this.imageLink = imageLink;
         this.saveTime = saveTime;
         this.key = key;
