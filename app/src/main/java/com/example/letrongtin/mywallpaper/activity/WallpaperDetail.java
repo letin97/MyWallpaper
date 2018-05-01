@@ -3,6 +3,7 @@ package com.example.letrongtin.mywallpaper.activity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.WallpaperManager;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -10,17 +11,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.letrongtin.mywallpaper.R;
@@ -38,7 +37,6 @@ import com.facebook.share.Sharer;
 import com.facebook.share.model.SharePhoto;
 import com.facebook.share.model.SharePhotoContent;
 import com.facebook.share.widget.ShareDialog;
-import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -49,7 +47,10 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -64,16 +65,12 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-public class WallpaperDetail extends AppCompatActivity {
+public class WallpaperDetail extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
 
-    CollapsingToolbarLayout collapsingToolbarLayout;
-    FloatingActionButton fabWallpaper, fabDownload;
-    CoordinatorLayout rootLayout;
+    RelativeLayout rootLayout;
     ImageView image;
+    BottomNavigationView menuBottom;
 
-
-    FloatingActionMenu mainFloating;
-    com.github.clans.fab.FloatingActionButton fabShare;
     // Facebook
     CallbackManager callbackManager;
     ShareDialog shareDialog;
@@ -81,6 +78,8 @@ public class WallpaperDetail extends AppCompatActivity {
     // Room Database
     CompositeDisposable compositeDisposable;
     RecentsRepository recentsRepository;
+
+    String imageLink, key;
 
 
     private Target target = new Target() {
@@ -140,13 +139,12 @@ public class WallpaperDetail extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
 
 
         // Init Fackebook
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(this);
-
-
 
         // Init Roomdatabase
         compositeDisposable = new CompositeDisposable();
@@ -154,91 +152,24 @@ public class WallpaperDetail extends AppCompatActivity {
         recentsRepository = RecentsRepository.getInstance(RecentsDataSource.getInstance(localDatabase.recentsDAO()));
 
 
-
-
-        rootLayout = findViewById(R.id.rootLayout);
-        collapsingToolbarLayout = findViewById(R.id.collapsing);
-        collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.CollapsedAppBar);
-        collapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.ExpandedAppBar);
-        collapsingToolbarLayout.setTitle(Common.CATEGORY_SELECTED);
-
+        rootLayout = findViewById(R.id.root_layout);
         image = findViewById(R.id.imageThumb);
+        menuBottom = findViewById(R.id.menu_bottom);
+
+        if (getIntent()!=null){
+            Intent intent = getIntent();
+            imageLink = intent.getStringExtra("imageLink");
+            key = intent.getStringExtra("key");
+        }
+
         Picasso.get()
-                .load(Common.WALLPAPER_SELECTED.getImageLink())
+                .load(imageLink)
                 .into(image);
 
-
-
-        mainFloating = findViewById(R.id.menu);
-        fabShare = findViewById(R.id.fb_share);
-        fabShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.e("AAA", "OK");
-                shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
-                    @Override
-                    public void onSuccess(Sharer.Result result) {
-                        Toast.makeText(WallpaperDetail.this, "Share successful", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        Toast.makeText(WallpaperDetail.this, "Share cancel", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(FacebookException error) {
-                        Toast.makeText(WallpaperDetail.this, error.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                Picasso.get()
-                        .load(Common.WALLPAPER_SELECTED.getImageLink())
-                        .into(facebookConvertBitmap);
-            }
-        });
-
+        menuBottom.setOnNavigationItemSelectedListener(this);
 
         // add to recent
-        addWallpaperToRecents();
-
-        fabWallpaper = findViewById(R.id.fabWallpaper);
-        fabWallpaper.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Picasso.get()
-                        .load(Common.WALLPAPER_SELECTED.getImageLink())
-                        .into(target);
-            }
-        });
-
-        fabDownload = findViewById(R.id.fabDowload);
-        fabDownload.setOnClickListener(new View.OnClickListener() {
-
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View v) {
-                if (ActivityCompat.checkSelfPermission(WallpaperDetail.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Common.PERMISSION_REQUEST_CODE);
-                } else {
-                    AlertDialog alertDialog = new SpotsDialog(WallpaperDetail.this);
-                    alertDialog.show();
-                    alertDialog.setMessage("Please waiting...");
-                    String filename = UUID.randomUUID().toString()+".png";
-
-                    Picasso.get()
-                            .load(Common.WALLPAPER_SELECTED.getImageLink())
-                            .into(new SaveImageHelper(getApplicationContext(),
-                                    alertDialog,
-                                    getContentResolver(),
-                                    filename,
-                                    "My Wallpaper"));
-                }
-            }
-        });
-
-
+        //addWallpaperToRecents();
 
         // view count
         increaseViewCount();
@@ -246,8 +177,8 @@ public class WallpaperDetail extends AppCompatActivity {
 
     private void increaseViewCount() {
         FirebaseDatabase.getInstance()
-                .getReference(Common.STR_WALLPAPERS)
-                .child(Common.WALLPAPER_SELECTED_KEY)
+                .getReference(Common.STR_WALLPAPER)
+                .child(key)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -261,8 +192,8 @@ public class WallpaperDetail extends AppCompatActivity {
                             update_view.put("viewCount", count);
 
                             FirebaseDatabase.getInstance()
-                                    .getReference(Common.STR_WALLPAPERS)
-                                    .child(Common.WALLPAPER_SELECTED_KEY)
+                                    .getReference(Common.STR_WALLPAPER)
+                                    .child(key)
                                     .updateChildren(update_view)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -282,8 +213,8 @@ public class WallpaperDetail extends AppCompatActivity {
                             update_view.put("viewCount", 1L);
 
                             FirebaseDatabase.getInstance()
-                                    .getReference(Common.STR_WALLPAPERS)
-                                    .child(Common.WALLPAPER_SELECTED_KEY)
+                                    .getReference(Common.STR_WALLPAPER)
+                                    .child(key)
                                     .updateChildren(update_view)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -307,14 +238,13 @@ public class WallpaperDetail extends AppCompatActivity {
                 });
     }
 
-    private void addWallpaperToRecents() {
+    private void addWallpaperToRecent() {
         Disposable disposable = Observable.create(new ObservableOnSubscribe<Object>() {
             @Override
             public void subscribe(ObservableEmitter<Object> e) throws Exception {
-                Recents recents = new Recents(Common.WALLPAPER_SELECTED.getImageLink(),
-                        Common.WALLPAPER_SELECTED.getCategoryId(),
-                        String.valueOf(System.currentTimeMillis()),
-                        Common.WALLPAPER_SELECTED_KEY);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyy", Locale.CHINA);
+                String time = simpleDateFormat.format(new Date());
+                Recents recents = new Recents(imageLink, time, key);
                 recentsRepository.insertRecents(recents);
                 e.onComplete();
             }
@@ -352,7 +282,7 @@ public class WallpaperDetail extends AppCompatActivity {
                 String filename = UUID.randomUUID().toString()+".png";
 
                 Picasso.get()
-                        .load(Common.WALLPAPER_SELECTED.getImageLink())
+                        .load(imageLink)
                         .into(new SaveImageHelper(getApplicationContext(),
                                 alertDialog,
                                 getContentResolver(),
@@ -375,5 +305,74 @@ public class WallpaperDetail extends AppCompatActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void shareToFaceBook(){
+
+        shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
+            @Override
+            public void onSuccess(Sharer.Result result) {
+                Toast.makeText(WallpaperDetail.this, "Share successful", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancel() {
+                Toast.makeText(WallpaperDetail.this, "Share cancel", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Toast.makeText(WallpaperDetail.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Picasso.get()
+                .load(imageLink)
+                .into(facebookConvertBitmap);
+    }
+
+    private void setWallpaper(){
+        Picasso.get()
+                .load(imageLink)
+                .into(target);
+        addWallpaperToRecent();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void downloadWallpaper(){
+        if (ActivityCompat.checkSelfPermission(WallpaperDetail.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Common.PERMISSION_REQUEST_CODE);
+        } else {
+            AlertDialog alertDialog = new SpotsDialog(WallpaperDetail.this);
+            alertDialog.show();
+            alertDialog.setMessage("Please waiting...");
+            String filename = UUID.randomUUID().toString()+".png";
+
+            Picasso.get()
+                    .load(imageLink)
+                    .into(new SaveImageHelper(getApplicationContext(),
+                            alertDialog,
+                            getContentResolver(),
+                            filename,
+                            "My Wallpaper"));
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_share:
+                shareToFaceBook();
+                break;
+            case R.id.action_wallpaper:
+                setWallpaper();
+                break;
+            case R.id.action_download:
+                downloadWallpaper();
+                break;
+        }
+        return false;
     }
 }

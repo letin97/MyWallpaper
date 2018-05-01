@@ -1,64 +1,56 @@
 package com.example.letrongtin.mywallpaper.activity;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.letrongtin.mywallpaper.R;
-import com.example.letrongtin.mywallpaper.adapter.MyFragmentAdapter;
 import com.example.letrongtin.mywallpaper.common.Common;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.letrongtin.mywallpaper.fragment.CategoryFragment;
+import com.example.letrongtin.mywallpaper.fragment.ExploreFragment;
+import com.example.letrongtin.mywallpaper.fragment.FavoriteFragment;
+import com.example.letrongtin.mywallpaper.fragment.RecentsFragment;
+import com.example.letrongtin.mywallpaper.fragment.WallpaperFragment;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    ViewPager viewPager;
-    TabLayout tabLayout;
-
+    Toolbar toolbar;
     DrawerLayout drawer;
     NavigationView navigationView;
+
+    private static final String TAG_WALLPAPER = "Wallpaper";
+    private static final String TAG_CATEGORY = "Category";
+    private static final String TAG_EXPLORE = "Explore";
+    private static final String TAG_FAVORITE = "Favorite";
+    private static final String TAG_RECENT = "Recent";
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Common.PERMISSION_REQUEST_CODE);
         }
-
-
-        viewPager = findViewById(R.id.viewPager);
-        tabLayout = findViewById(R.id.tabLayout);
-
-        MyFragmentAdapter adapter = new MyFragmentAdapter(getSupportFragmentManager(), this);
-        viewPager.setAdapter(adapter);
-        tabLayout.setupWithViewPager(viewPager);
-
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -69,48 +61,10 @@ public class HomeActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        loadUserInformation();
-    }
-
-    private void loadUserInformation() {
-        if (FirebaseAuth.getInstance().getCurrentUser() != null){
-            View headLayout = navigationView.getHeaderView(0);
-            TextView txtEmail = headLayout.findViewById(R.id.txtEmail);
-            txtEmail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-
-        }
+        loadFragment(new WallpaperFragment());
 
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        //if (requestCode == Common.SIGN_IN_REQUEST_CODE ){
-            //IdpResponse response = IdpResponse.fromResultIntent(data);
-            //if (resultCode == RESULT_OK)
-                    Snackbar.make(drawer, new StringBuilder("Welcome")
-                        .append(FirebaseAuth.getInstance().getCurrentUser().getEmail()), Snackbar.LENGTH_LONG).show();
-
-            Log.d("TAG", "FireBaseAuthActivity onActivityResult: " +FirebaseAuth.getInstance().getCurrentUser().getEmail());
-//            if (ActivityCompat.checkSelfPermission(this,
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-//                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Common.PERMISSION_REQUEST_CODE);
-//            }
-
-
-//            viewPager = findViewById(R.id.viewPager);
-//            tabLayout = findViewById(R.id.tabLayout);
-//
-//            MyFragmentAdapter adapter = new MyFragmentAdapter(getSupportFragmentManager(), this);
-//            viewPager.setAdapter(adapter);
-//            tabLayout.setupWithViewPager(viewPager);
-
-        //}
-
-        //Snackbar.make(drawer, "Fall ", Snackbar.LENGTH_LONG).show();
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -160,16 +114,46 @@ public class HomeActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-        if (id == R.id.nav_view_up) {
-            // Handle the camera action
+        Fragment fragment = null;
+
+        switch (item.getItemId()){
+            case R.id.nav_wallpaper:
+                toolbar.setTitle(TAG_WALLPAPER);
+                fragment = WallpaperFragment.getInstance();
+                break;
+            case R.id.nav_category:
+                toolbar.setTitle(TAG_CATEGORY);
+                fragment = CategoryFragment.getInstance();
+                break;
+            case R.id.nav_explore:
+                toolbar.setTitle(TAG_EXPLORE);
+                fragment = ExploreFragment.getInstance();
+                break;
+            case R.id.nav_favorite:
+                toolbar.setTitle(TAG_FAVORITE);
+                fragment = FavoriteFragment.getInstance();
+                break;
+            case R.id.nav_recent:
+                toolbar.setTitle(TAG_RECENT);
+                fragment = RecentsFragment.getInstance(HomeActivity.this);
+                break;
+            default:
+                toolbar.setTitle(TAG_WALLPAPER);
+                fragment = WallpaperFragment.getInstance();
+                break;
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        return true;
+        return loadFragment(fragment);
+    }
+
+    private boolean loadFragment(Fragment fragment){
+        if (fragment != null){
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
+            return true;
+        }
+        return false;
     }
 }

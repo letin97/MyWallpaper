@@ -3,9 +3,10 @@ package com.example.letrongtin.mywallpaper.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,23 +24,12 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Callback;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class CategoryFragment extends Fragment {
-
-    FirebaseDatabase database;
-    DatabaseReference categoryBackground;
-
-    //FirebaseUI adapter
-    FirebaseRecyclerOptions<Category> options;
-    FirebaseRecyclerAdapter<Category,CategoryViewHolder> adapter;
-
-    RecyclerView recyclerView;
-
 
     private static CategoryFragment instance = null;
 
@@ -50,10 +40,19 @@ public class CategoryFragment extends Fragment {
         return instance;
     }
 
+    FirebaseDatabase database;
+    DatabaseReference categoryBackground;
+
+    //FirebaseUI adapter
+    FirebaseRecyclerOptions<Category> options;
+    FirebaseRecyclerAdapter<Category,CategoryViewHolder> adapter;
+
+    RecyclerView recyclerView;
+
     public CategoryFragment() {
 
         database = FirebaseDatabase.getInstance();
-        categoryBackground = database.getReference(Common.STR_CATEGORY_BACKGROUND);
+        categoryBackground = database.getReference(Common.STR_CATEGORY);
 
         options = new FirebaseRecyclerOptions.Builder<Category>()
                 .setQuery(categoryBackground, Category.class)
@@ -61,10 +60,9 @@ public class CategoryFragment extends Fragment {
 
         adapter = new FirebaseRecyclerAdapter<Category, CategoryViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(final CategoryViewHolder holder, int position, final Category model) {
+            protected void onBindViewHolder(@NonNull final CategoryViewHolder holder, int position, @NonNull final Category model) {
                 Picasso.get()
                         .load(model.getImageLink())
-                        .networkPolicy(NetworkPolicy.OFFLINE)
                         .into(holder.background_image, new Callback() {
                             @Override
                             public void onSuccess() {
@@ -73,7 +71,6 @@ public class CategoryFragment extends Fragment {
 
                             @Override
                             public void onError(Exception e) {
-                                // Try
                                 Picasso.get()
                                         .load(model.getImageLink())
                                         .error(R.drawable.ic_terrain_black_24dp)
@@ -124,13 +121,13 @@ public class CategoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_category, container, false);
         recyclerView = view.findViewById(R.id.recycler_category);
         recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
-        recyclerView.setLayoutManager(gridLayoutManager);
-        setCategory();
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(linearLayoutManager);
+        loadCategory();
         return view;
     }
 
-    private void setCategory() {
+    private void loadCategory() {
         adapter.startListening();
         recyclerView.setAdapter(adapter);
     }

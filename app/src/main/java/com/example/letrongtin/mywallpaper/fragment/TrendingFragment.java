@@ -3,6 +3,7 @@ package com.example.letrongtin.mywallpaper.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,7 +24,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.squareup.picasso.Callback;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -36,7 +36,7 @@ public class TrendingFragment extends Fragment {
     RecyclerView recyclerView;
 
     FirebaseDatabase database;
-    DatabaseReference wallpapper;
+    DatabaseReference wallpaper;
 
     FirebaseRecyclerOptions<Wallpaper> options;
     FirebaseRecyclerAdapter<Wallpaper, ListWallpaperViewHolder> adapter;
@@ -53,9 +53,9 @@ public class TrendingFragment extends Fragment {
 
         // dâtbase
         database = FirebaseDatabase.getInstance();
-        wallpapper = database.getReference(Common.STR_WALLPAPERS);
+        wallpaper = database.getReference(Common.STR_WALLPAPER);
 
-        Query query = wallpapper.orderByChild("viewCount")
+        Query query = wallpaper.orderByChild("viewCount")
                 .limitToLast(10);
 
         options = new FirebaseRecyclerOptions.Builder<Wallpaper>()
@@ -67,6 +67,7 @@ public class TrendingFragment extends Fragment {
             protected void onBindViewHolder(final ListWallpaperViewHolder holder, int position, final Wallpaper model) {
                 Picasso.get()
                         .load(model.getImageLink())
+                        .fit()
                         .into(holder.wallpaper, new Callback() {
                             @Override
                             public void onSuccess() {
@@ -77,8 +78,8 @@ public class TrendingFragment extends Fragment {
                             public void onError(Exception e) {
                                 Picasso.get()
                                         .load(model.getImageLink())
+                                        .fit()
                                         .error(R.drawable.ic_terrain_black_24dp)
-                                        .networkPolicy(NetworkPolicy.OFFLINE)
                                         .into(holder.wallpaper, new Callback() {
                                             @Override
                                             public void onSuccess() {
@@ -97,8 +98,7 @@ public class TrendingFragment extends Fragment {
                     @Override
                     public void onClick(View view, int position) {
                         Intent intent = new Intent(getActivity(), WallpaperDetail.class);
-                        Common.WALLPAPER_SELECTED = model;
-                        Common.WALLPAPER_SELECTED_KEY = adapter.getRef(position).getKey();
+                        //intent.putExtra()
                         startActivity(intent);
                     }
                 });
@@ -117,7 +117,7 @@ public class TrendingFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_trending, container, false);
@@ -129,11 +129,11 @@ public class TrendingFragment extends Fragment {
         linearLayoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        loadTreding();
+        loadTrending();
         return view;
     }
 
-    private void loadTreding() {
+    private void loadTrending() {
         adapter.startListening();
         recyclerView.setAdapter(adapter);
     }

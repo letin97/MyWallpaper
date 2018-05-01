@@ -4,13 +4,27 @@
     tools:showIn="navigation_view">
 
 
-    <item android:title="Management">
-        <menu>
-            <item
-                android:id="@+id/nav_view_up"
-                android:icon="@drawable/ic_menu_gallery"
-                android:title="View your upload" />
-        </menu>
-    </item>
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_wallpaper"
+            android:icon="@drawable/ic_explore_black_24dp"
+            android:title="Wallpaper"/>
+        <item
+            android:id="@+id/nav_category"
+            android:icon="@drawable/ic_explore_black_24dp"
+            android:title="Category"/>
+        <item
+            android:id="@+id/nav_explore"
+            android:icon="@drawable/ic_explore_black_24dp"
+            android:title="Expolee"/>
+        <item
+            android:id="@+id/nav_favorite"
+            android:icon="@drawable/ic_explore_black_24dp"
+            android:title="Favorite"/>
+        <item
+            android:id="@+id/nav_recent"
+            android:icon="@drawable/ic_explore_black_24dp"
+            android:title="Recent"/>
+    </group>
 
 </menu>

@@ -5,6 +5,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
+import com.example.letrongtin.mywallpaper.database.Favorite;
 import com.example.letrongtin.mywallpaper.database.Recents;
 
 import static com.example.letrongtin.mywallpaper.database.localdatabase.LocalDatabase.DATABASE_VERSION;
@@ -13,7 +14,7 @@ import static com.example.letrongtin.mywallpaper.database.localdatabase.LocalDat
  * Created by Le Trong Tin on 3/23/2018.
  */
 
-@Database(entities = {Recents.class}, version = DATABASE_VERSION)
+@Database(entities = {Recents.class, Favorite.class}, version = DATABASE_VERSION)
 public abstract class LocalDatabase extends RoomDatabase {
 
     public static final int DATABASE_VERSION = 1;
@@ -21,6 +22,8 @@ public abstract class LocalDatabase extends RoomDatabase {
     public static final String DATABASE_NAME = "MyWallpaper";
 
     public abstract RecentsDAO recentsDAO();
+
+    public abstract FavoriteDAO favoriteDAO();
 
     public static  LocalDatabase instance;
 

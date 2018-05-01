@@ -5,19 +5,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.letrongtin.mywallpaper.fragment.CategoryFragment;
 import com.example.letrongtin.mywallpaper.fragment.TrendingFragment;
-import com.example.letrongtin.mywallpaper.fragment.RecentsFragment;
 
 /**
  * Created by Le Trong Tin on 3/21/2018.
  */
 
-public class MyFragmentAdapter extends FragmentPagerAdapter {
+public class WallpaperFragmentAdapter extends FragmentPagerAdapter {
 
     private Context context;
 
-    public MyFragmentAdapter(FragmentManager fm, Context context) {
+    public WallpaperFragmentAdapter(FragmentManager fm, Context context) {
         super(fm);
         this.context = context;
     }
@@ -26,11 +24,11 @@ public class MyFragmentAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case 0:
-                return CategoryFragment.getInstance();
+                return new TrendingFragment();
             case 1:
-                return TrendingFragment.getInstance();
+                return new TrendingFragment();
             case 2:
-                return RecentsFragment.getInstance(context);
+                return new TrendingFragment();
         }
         return null;
     }
@@ -44,11 +42,11 @@ public class MyFragmentAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position){
             case 0:
-                return "Category";
+                return "New";
             case 1:
                 return "Trending";
             case 2:
-                return "Recent";
+                return "Popular";
         }
         return "";
     }

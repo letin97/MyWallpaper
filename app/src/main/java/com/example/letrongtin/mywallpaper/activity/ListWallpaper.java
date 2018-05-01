@@ -22,7 +22,6 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.squareup.picasso.Callback;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 public class ListWallpaper extends AppCompatActivity {
@@ -56,7 +55,7 @@ public class ListWallpaper extends AppCompatActivity {
     }
 
     private void loadWallpapers() {
-        query = FirebaseDatabase.getInstance().getReference(Common.STR_WALLPAPERS)
+        query = FirebaseDatabase.getInstance().getReference(Common.STR_WALLPAPER)
                 .orderByChild("categoryId").equalTo(Common.CATEGORY_ID_SELECTED);
 
         options = new FirebaseRecyclerOptions.Builder<Wallpaper>()
@@ -78,8 +77,8 @@ public class ListWallpaper extends AppCompatActivity {
                             public void onError(Exception e) {
                                 Picasso.get()
                                         .load(model.getImageLink())
+                                        .fit()
                                         .error(R.drawable.ic_terrain_black_24dp)
-                                        .networkPolicy(NetworkPolicy.OFFLINE)
                                         .into(holder.wallpaper, new Callback() {
                                             @Override
                                             public void onSuccess() {
@@ -98,8 +97,8 @@ public class ListWallpaper extends AppCompatActivity {
                     @Override
                     public void onClick(View view, int position) {
                         Intent intent = new Intent(ListWallpaper.this, WallpaperDetail.class);
-                        Common.WALLPAPER_SELECTED = model;
-                        Common.WALLPAPER_SELECTED_KEY = adapter.getRef(position).getKey();
+                        intent.putExtra("imageLink", model.getImageLink());
+                        intent.putExtra("key", adapter.getRef(position).getKey());
                         startActivity(intent);
                     }
                 });
