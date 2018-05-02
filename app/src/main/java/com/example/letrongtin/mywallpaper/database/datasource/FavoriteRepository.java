@@ -13,9 +13,13 @@ public class FavoriteRepository implements FavoriteDAO{
 
     private static FavoriteRepository instance;
 
-    public FavoriteRepository(FavoriteDAO favoriteDAO) {
+    public static FavoriteRepository getInstance(FavoriteDAO favoriteDAO) {
         if (instance == null)
             instance = new FavoriteRepository(favoriteDAO);
+        return instance;
+    }
+
+    public FavoriteRepository(FavoriteDAO favoriteDAO) {
         this.favoriteDAO = favoriteDAO;
     }
 

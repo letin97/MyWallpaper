@@ -13,7 +13,7 @@ import com.example.letrongtin.mywallpaper.R;
 
 public class ListWallpaperViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    ItemClickListener itemClickListener;
+    private ItemClickListener itemClickListener;
 
     public ImageView wallpaper;
 

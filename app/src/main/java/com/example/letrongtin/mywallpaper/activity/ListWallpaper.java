@@ -67,6 +67,7 @@ public class ListWallpaper extends AppCompatActivity {
             protected void onBindViewHolder(final ListWallpaperViewHolder holder, int position, final Wallpaper model) {
                 Picasso.get()
                         .load(model.getImageLink())
+                        .fit()
                         .into(holder.wallpaper, new Callback() {
                             @Override
                             public void onSuccess() {

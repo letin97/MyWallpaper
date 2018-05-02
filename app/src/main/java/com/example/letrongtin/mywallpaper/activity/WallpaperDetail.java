@@ -18,13 +18,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.letrongtin.mywallpaper.R;
 import com.example.letrongtin.mywallpaper.common.Common;
+import com.example.letrongtin.mywallpaper.database.Favorite;
 import com.example.letrongtin.mywallpaper.database.Recents;
+import com.example.letrongtin.mywallpaper.database.datasource.FavoriteRepository;
 import com.example.letrongtin.mywallpaper.database.datasource.RecentsRepository;
 import com.example.letrongtin.mywallpaper.database.localdatabase.LocalDatabase;
 import com.example.letrongtin.mywallpaper.database.localdatabase.RecentsDataSource;
@@ -68,7 +71,7 @@ import io.reactivex.schedulers.Schedulers;
 public class WallpaperDetail extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
 
     RelativeLayout rootLayout;
-    ImageView image;
+    ImageView image, icFavorite;
     BottomNavigationView menuBottom;
 
     // Facebook
@@ -78,8 +81,10 @@ public class WallpaperDetail extends AppCompatActivity implements BottomNavigati
     // Room Database
     CompositeDisposable compositeDisposable;
     RecentsRepository recentsRepository;
+    FavoriteRepository favoriteRepository;
 
     String imageLink, key;
+    boolean isFavorite = false;
 
 
     private Target target = new Target() {
@@ -150,10 +155,12 @@ public class WallpaperDetail extends AppCompatActivity implements BottomNavigati
         compositeDisposable = new CompositeDisposable();
         LocalDatabase localDatabase = LocalDatabase.getInstance(this);
         recentsRepository = RecentsRepository.getInstance(RecentsDataSource.getInstance(localDatabase.recentsDAO()));
+        favoriteRepository = FavoriteRepository.getInstance(localDatabase.favoriteDAO());
 
 
         rootLayout = findViewById(R.id.root_layout);
         image = findViewById(R.id.imageThumb);
+
         menuBottom = findViewById(R.id.menu_bottom);
 
         if (getIntent()!=null){
@@ -167,6 +174,30 @@ public class WallpaperDetail extends AppCompatActivity implements BottomNavigati
                 .into(image);
 
         menuBottom.setOnNavigationItemSelectedListener(this);
+
+        icFavorite = findViewById(R.id.ic_favorite);
+        if (isFavorite){
+            icFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_white_24dp));
+        }
+
+        checkWallpaperFavorite();
+
+        icFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isFavorite){
+                    isFavorite = false;
+                    deleteWallpaperFavorite();
+                    icFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_border_white_24dp));
+                    Toast.makeText(WallpaperDetail.this, "Removed to favorites", Toast.LENGTH_SHORT).show();
+                }else {
+                    isFavorite = true;
+                    addWallpaperToFavorite();
+                    icFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_white_24dp));
+                    Toast.makeText(WallpaperDetail.this, "Added to favorites", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         // add to recent
         //addWallpaperToRecents();
@@ -246,6 +277,99 @@ public class WallpaperDetail extends AppCompatActivity implements BottomNavigati
                 String time = simpleDateFormat.format(new Date());
                 Recents recents = new Recents(imageLink, time, key);
                 recentsRepository.insertRecents(recents);
+                e.onComplete();
+            }
+        }).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) throws Exception {
+
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.e("ERROR", throwable.getMessage());
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+
+                    }
+                });
+        compositeDisposable.add(disposable);
+    }
+
+    private void addWallpaperToFavorite() {
+        Disposable disposable = Observable.create(new ObservableOnSubscribe<Object>() {
+            @Override
+            public void subscribe(ObservableEmitter<Object> e) throws Exception {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyy", Locale.CHINA);
+                String time = simpleDateFormat.format(new Date());
+                Favorite favorite = new Favorite(imageLink, time, key);
+                favoriteRepository.insertFavorite(favorite);
+                e.onComplete();
+            }
+        }).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) throws Exception {
+
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.e("ERROR", throwable.getMessage());
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+
+                    }
+                });
+        compositeDisposable.add(disposable);
+    }
+
+    private void deleteWallpaperFavorite() {
+        Disposable disposable = Observable.create(new ObservableOnSubscribe<Object>() {
+            @Override
+            public void subscribe(ObservableEmitter<Object> e) throws Exception {
+                favoriteRepository.deleteFavoriteByImageLink(imageLink);
+                e.onComplete();
+            }
+        }).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) throws Exception {
+
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.e("ERROR", throwable.getMessage());
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+
+                    }
+                });
+        compositeDisposable.add(disposable);
+    }
+
+    private void checkWallpaperFavorite() {
+        Disposable disposable = Observable.create(new ObservableOnSubscribe<Object>() {
+            @Override
+            public void subscribe(ObservableEmitter<Object> e) throws Exception {
+                Favorite favorite = favoriteRepository.getFavoriteByImageLink(imageLink);
+
+                if (favorite!=null){
+                    isFavorite = true;
+                    icFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_white_24dp));
+                }
+
                 e.onComplete();
             }
         }).observeOn(AndroidSchedulers.mainThread())

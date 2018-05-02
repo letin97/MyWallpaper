@@ -133,7 +133,7 @@ public class HomeActivity extends AppCompatActivity
                 break;
             case R.id.nav_favorite:
                 toolbar.setTitle(TAG_FAVORITE);
-                fragment = FavoriteFragment.getInstance();
+                fragment = FavoriteFragment.getInstance(HomeActivity.this);
                 break;
             case R.id.nav_recent:
                 toolbar.setTitle(TAG_RECENT);

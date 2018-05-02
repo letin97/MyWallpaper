@@ -3,6 +3,7 @@ package com.example.letrongtin.mywallpaper.database.localdatabase;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
@@ -22,7 +23,8 @@ public interface RecentsDAO {
     @Query("SELECT * FROM recents ORDER BY saveTime DESC LIMIT 10")
     Flowable<List<Recents>> getAllRecents();
 
-    @Insert
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertRecents(Recents... recents);
 
     @Update
