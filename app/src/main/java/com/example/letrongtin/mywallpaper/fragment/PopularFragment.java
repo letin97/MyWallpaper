@@ -29,13 +29,13 @@ import com.squareup.picasso.Picasso;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TrendingFragment extends Fragment {
+public class PopularFragment extends Fragment {
 
-    private static TrendingFragment instance ;
+    private static PopularFragment instance;
 
-    public static TrendingFragment getInstance() {
+    public static PopularFragment getInstance() {
         if (instance == null){
-            instance = new TrendingFragment();
+            instance = new PopularFragment();
         }
         return instance;
     }
@@ -48,16 +48,13 @@ public class TrendingFragment extends Fragment {
     FirebaseRecyclerOptions<Wallpaper> options;
     FirebaseRecyclerAdapter<Wallpaper, ListWallpaperViewHolder> adapter;
 
-
-
-
-    public TrendingFragment() {
+    public PopularFragment() {
 
         // dâtbase
         database = FirebaseDatabase.getInstance();
         wallpaper = database.getReference(Common.STR_WALLPAPER);
 
-        Query query = wallpaper.orderByChild("viewCount")
+        Query query = wallpaper.orderByChild("setCount")
                 .limitToLast(10);
 
         options = new FirebaseRecyclerOptions.Builder<Wallpaper>()
@@ -115,17 +112,15 @@ public class TrendingFragment extends Fragment {
                 return new ListWallpaperViewHolder(view);
             }
         };
-
     }
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_trending, container, false);
+        View view = inflater.inflate(R.layout.fragment_popular, container, false);
 
-        recyclerView = view.findViewById(R.id.recycler_trending);
+        recyclerView = view.findViewById(R.id.recycler_popular);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -159,4 +154,5 @@ public class TrendingFragment extends Fragment {
         if (adapter != null)
             adapter.startListening();
     }
+
 }

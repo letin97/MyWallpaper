@@ -41,7 +41,7 @@ public class CategoryFragment extends Fragment {
     }
 
     FirebaseDatabase database;
-    DatabaseReference categoryBackground;
+    DatabaseReference category;
 
     //FirebaseUI adapter
     FirebaseRecyclerOptions<Category> options;
@@ -52,10 +52,10 @@ public class CategoryFragment extends Fragment {
     public CategoryFragment() {
 
         database = FirebaseDatabase.getInstance();
-        categoryBackground = database.getReference(Common.STR_CATEGORY);
+        category = database.getReference(Common.STR_CATEGORY);
 
         options = new FirebaseRecyclerOptions.Builder<Category>()
-                .setQuery(categoryBackground, Category.class)
+                .setQuery(category, Category.class)
                 .build();
 
         adapter = new FirebaseRecyclerAdapter<Category, CategoryViewHolder>(options) {

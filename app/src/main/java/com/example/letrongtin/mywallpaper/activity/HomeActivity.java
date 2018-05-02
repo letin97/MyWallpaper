@@ -61,7 +61,11 @@ public class HomeActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // Init
+        getSupportActionBar().setTitle(TAG_WALLPAPER);
+        navigationView.getMenu().getItem(0).setChecked(true);
         loadFragment(new WallpaperFragment());
+
 
     }
 

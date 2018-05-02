@@ -12,12 +12,16 @@ public class Wallpaper {
 
     private long viewCount;
 
+    private long setCount;
+
     public Wallpaper() {
     }
 
-    public Wallpaper(String categoryId, String imageLink) {
+    public Wallpaper(String categoryId, String imageLink, long viewCount, long setCount) {
         this.categoryId = categoryId;
         this.imageLink = imageLink;
+        this.viewCount = viewCount;
+        this.setCount = setCount;
     }
 
     public String getCategoryId() {
@@ -42,5 +46,13 @@ public class Wallpaper {
 
     public void setViewCount(long viewCount) {
         this.viewCount = viewCount;
+    }
+
+    public long getSetCount() {
+        return setCount;
+    }
+
+    public void setSetCount(long setCount) {
+        this.setCount = setCount;
     }
 }

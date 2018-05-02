@@ -10,6 +10,10 @@ public class Common {
 
     public static final String STR_WALLPAPER = "Wallpaper";
 
+    public static final String STR_EXPLORE = "Explore";
+
+    public static final String STR_GIF = "Gif";
+
     public static String CATEGORY_SELECTED;
 
     public static String CATEGORY_ID_SELECTED;

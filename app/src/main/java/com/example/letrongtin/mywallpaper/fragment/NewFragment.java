@@ -29,13 +29,13 @@ import com.squareup.picasso.Picasso;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TrendingFragment extends Fragment {
+public class NewFragment extends Fragment {
 
-    private static TrendingFragment instance ;
+    private static NewFragment instance ;
 
-    public static TrendingFragment getInstance() {
+    public static NewFragment getInstance() {
         if (instance == null){
-            instance = new TrendingFragment();
+            instance = new NewFragment();
         }
         return instance;
     }
@@ -49,16 +49,13 @@ public class TrendingFragment extends Fragment {
     FirebaseRecyclerAdapter<Wallpaper, ListWallpaperViewHolder> adapter;
 
 
-
-
-    public TrendingFragment() {
+    public NewFragment() {
 
         // dâtbase
         database = FirebaseDatabase.getInstance();
         wallpaper = database.getReference(Common.STR_WALLPAPER);
 
-        Query query = wallpaper.orderByChild("viewCount")
-                .limitToLast(10);
+        Query query = wallpaper.limitToLast(10);
 
         options = new FirebaseRecyclerOptions.Builder<Wallpaper>()
                 .setQuery(query, Wallpaper.class)
@@ -123,18 +120,18 @@ public class TrendingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_trending, container, false);
+        View view = inflater.inflate(R.layout.fragment_new, container, false);
 
-        recyclerView = view.findViewById(R.id.recycler_trending);
+        recyclerView = view.findViewById(R.id.recycler_new);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        loadTrending();
+        loadNew();
         return view;
     }
 
-    private void loadTrending() {
+    private void loadNew() {
         adapter.startListening();
         recyclerView.setAdapter(adapter);
     }
@@ -159,4 +156,5 @@ public class TrendingFragment extends Fragment {
         if (adapter != null)
             adapter.startListening();
     }
+
 }

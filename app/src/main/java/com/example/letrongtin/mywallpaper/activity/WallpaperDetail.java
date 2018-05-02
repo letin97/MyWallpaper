@@ -199,9 +199,6 @@ public class WallpaperDetail extends AppCompatActivity implements BottomNavigati
             }
         });
 
-        // add to recent
-        //addWallpaperToRecents();
-
         // view count
         increaseViewCount();
     }
@@ -214,52 +211,69 @@ public class WallpaperDetail extends AppCompatActivity implements BottomNavigati
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // set count
-                        if (dataSnapshot.hasChild("viewCount")){
-                            Wallpaper wallpaper = dataSnapshot.getValue(Wallpaper.class);
-                            long count = wallpaper.getViewCount() + 1;
+                        Wallpaper wallpaper = dataSnapshot.getValue(Wallpaper.class);
+                        long viewCount = wallpaper.getViewCount() + 1;
 
-                            //update
-                            Map<String,Object> update_view = new HashMap<>();
-                            update_view.put("viewCount", count);
+                        //update
+                        Map<String,Object> update_view = new HashMap<>();
+                        update_view.put("viewCount", viewCount);
 
-                            FirebaseDatabase.getInstance()
-                                    .getReference(Common.STR_WALLPAPER)
-                                    .child(key)
-                                    .updateChildren(update_view)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
+                        FirebaseDatabase.getInstance()
+                                .getReference(Common.STR_WALLPAPER)
+                                .child(key)
+                                .updateChildren(update_view)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
 
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(WallpaperDetail.this, "Cannot update view count", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        }
-                        else {
-                            Map<String,Object> update_view = new HashMap<>();
-                            update_view.put("viewCount", 1L);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(WallpaperDetail.this, "Cannot update view count", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
 
-                            FirebaseDatabase.getInstance()
-                                    .getReference(Common.STR_WALLPAPER)
-                                    .child(key)
-                                    .updateChildren(update_view)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(WallpaperDetail.this, "Cannot set default view count", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        }
+                    }
+                });
+    }
+
+    private void increaseSetCount() {
+        FirebaseDatabase.getInstance()
+                .getReference(Common.STR_WALLPAPER)
+                .child(key)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // set count
+                        Wallpaper wallpaper = dataSnapshot.getValue(Wallpaper.class);
+                        long setCount = wallpaper.getSetCount() + 1;
+
+                        //update
+                        Map<String,Object> update_view = new HashMap<>();
+                        update_view.put("setCount", setCount);
+
+                        FirebaseDatabase.getInstance()
+                                .getReference(Common.STR_WALLPAPER)
+                                .child(key)
+                                .updateChildren(update_view)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(WallpaperDetail.this, "Cannot update set count", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     }
 
                     @Override
@@ -460,6 +474,7 @@ public class WallpaperDetail extends AppCompatActivity implements BottomNavigati
                 .load(imageLink)
                 .into(target);
         addWallpaperToRecent();
+        increaseSetCount();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

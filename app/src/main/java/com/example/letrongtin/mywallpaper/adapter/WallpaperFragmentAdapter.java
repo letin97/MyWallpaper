@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.example.letrongtin.mywallpaper.fragment.NewFragment;
+import com.example.letrongtin.mywallpaper.fragment.PopularFragment;
 import com.example.letrongtin.mywallpaper.fragment.TrendingFragment;
 
 /**
@@ -24,11 +26,11 @@ public class WallpaperFragmentAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case 0:
-                return new TrendingFragment();
+                return NewFragment.getInstance();
             case 1:
-                return new TrendingFragment();
+                return TrendingFragment.getInstance();
             case 2:
-                return new TrendingFragment();
+                return PopularFragment.getInstance();
         }
         return null;
     }

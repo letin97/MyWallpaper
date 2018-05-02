@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.letrongtin.mywallpaper">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-feature
+        android:name="android.software.live_wallpaper"
+        android:required="true"></uses-feature>
 
     <application
         android:allowBackup="true"
@@ -14,18 +19,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/FullScreenTheme">
+        <service
+            android:name=".helper.GIFWallpaperService"
+            android:enabled="true"
+            android:label="GIF Wallpaper"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/wallpaper"></meta-data>
+        </service>
 
         <meta-data xmlns:tools="http://schemas.android.com/tools"
-            tools:replace="android:value"
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id">
-        </meta-data>
+            android:value="@string/facebook_app_id"
+            tools:replace="android:value"></meta-data>
 
         <provider
-            android:authorities="com.facebook.app.FacebookContentProvider447381519027157"
             android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider447381519027157"
             android:exported="true" />
-
 
         <activity android:name=".activity.MainActivity">
             <intent-filter>
@@ -39,7 +55,8 @@
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activity.ListWallpaper" />
-        <activity android:name=".activity.WallpaperDetail"></activity>
+        <activity android:name=".activity.WallpaperDetail" />
+        <activity android:name=".activity.ListGIFWallpaperActivity"></activity>
     </application>
 
 </manifest>

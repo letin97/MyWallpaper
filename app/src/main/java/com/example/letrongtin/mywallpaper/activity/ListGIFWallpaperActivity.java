@@ -1,64 +1,65 @@
-package com.example.letrongtin.mywallpaper.fragment;
+package com.example.letrongtin.mywallpaper.activity;
 
-
+import android.app.WallpaperManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.letrongtin.mywallpaper.Interface.ItemClickListener;
 import com.example.letrongtin.mywallpaper.R;
-import com.example.letrongtin.mywallpaper.activity.WallpaperDetail;
 import com.example.letrongtin.mywallpaper.common.Common;
+import com.example.letrongtin.mywallpaper.helper.GIFWallpaperService;
 import com.example.letrongtin.mywallpaper.model.Wallpaper;
 import com.example.letrongtin.mywallpaper.viewholder.ListWallpaperViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class TrendingFragment extends Fragment {
+public class ListGIFWallpaperActivity extends AppCompatActivity {
 
-    private static TrendingFragment instance ;
-
-    public static TrendingFragment getInstance() {
-        if (instance == null){
-            instance = new TrendingFragment();
-        }
-        return instance;
-    }
-
-    RecyclerView recyclerView;
-
-    FirebaseDatabase database;
-    DatabaseReference wallpaper;
+    Query query;
 
     FirebaseRecyclerOptions<Wallpaper> options;
     FirebaseRecyclerAdapter<Wallpaper, ListWallpaperViewHolder> adapter;
 
+    RecyclerView recyclerView;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_list_gifwallpaper);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(Common.CATEGORY_SELECTED);
+        setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-    public TrendingFragment() {
+        recyclerView = findViewById(R.id.recycler_list_wallpaper);
+        recyclerView.setHasFixedSize(true);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2);
+        recyclerView.setLayoutManager(gridLayoutManager);
 
-        // dâtbase
-        database = FirebaseDatabase.getInstance();
-        wallpaper = database.getReference(Common.STR_WALLPAPER);
+        loadWallpapers();
 
-        Query query = wallpaper.orderByChild("viewCount")
-                .limitToLast(10);
+    }
+
+    private void loadWallpapers() {
+        query = FirebaseDatabase.getInstance().getReference(Common.STR_GIF)
+                .orderByChild("categoryId").equalTo(Common.CATEGORY_ID_SELECTED);
 
         options = new FirebaseRecyclerOptions.Builder<Wallpaper>()
                 .setQuery(query, Wallpaper.class)
@@ -99,12 +100,15 @@ public class TrendingFragment extends Fragment {
                 holder.setItemClickListener(new ItemClickListener() {
                     @Override
                     public void onClick(View view, int position) {
-                        Intent intent = new Intent(getContext(), WallpaperDetail.class);
-                        intent.putExtra("imageLink", model.getImageLink());
-                        intent.putExtra("key", adapter.getRef(position).getKey());
-                        getContext().startActivity(intent);
+                        GIFWallpaperService.gifAddr = model.getImageLink();
+                        Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+                        intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                                new ComponentName(ListGIFWallpaperActivity.this.getPackageName(), GIFWallpaperService.class.getCanonicalName()));
+                        startActivity(intent);
                     }
                 });
+
+
             }
 
             @Override
@@ -116,45 +120,34 @@ public class TrendingFragment extends Fragment {
             }
         };
 
-    }
-
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_trending, container, false);
-
-        recyclerView = view.findViewById(R.id.recycler_trending);
-        recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
-        recyclerView.setLayoutManager(gridLayoutManager);
-
-        loadTrending();
-        return view;
-    }
-
-    private void loadTrending() {
         adapter.startListening();
+
         recyclerView.setAdapter(adapter);
     }
 
     @Override
-    public void onStart() {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home)
+            finish();
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() {
         super.onStart();
         if (adapter != null)
             adapter.startListening();
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
         if (adapter != null)
             adapter.stopListening();
         super.onStop();
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         if (adapter != null)
             adapter.startListening();
