@@ -53,10 +53,11 @@ public class GIFWallpaperService extends WallpaperService {
                     URL gifURL = new URL(gifAddr);
                     HttpURLConnection connection = (HttpURLConnection) gifURL.openConnection();
                     gifInputStream = connection.getInputStream();
+                    Thread.sleep(200);
                     movie = Movie.decodeStream(gifInputStream);
-                } catch (IOException e) {
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
-                }finally {
+                } finally {
                     try {
                         gifInputStream.close();
                     } catch (IOException e) {
@@ -74,15 +75,21 @@ public class GIFWallpaperService extends WallpaperService {
 
         private void draw() {
             if (visible) {
-                Canvas canvas = holder.lockCanvas();
-                canvas.save();
-                // Adjust size and position so that
-                // the image looks good on your screen
-                canvas.scale(scaleX, scaleY);
-                movie.draw(canvas, 0, 0);
-                canvas.restore();
-                holder.unlockCanvasAndPost(canvas);
-                movie.setTime((int) (System.currentTimeMillis() % movie.duration()));
+                Canvas canvas = null;
+                try {
+                    canvas = holder.lockCanvas();
+                    if (canvas != null) {
+                        canvas.save();
+                        // Adjust size and position so that
+                        // the image looks good on your screen
+                        canvas.scale(scaleX, scaleY);
+                        movie.draw(canvas, 0, 0);
+                        movie.setTime((int) (System.currentTimeMillis() % movie.duration()));
+                        canvas.restore();
+                    }
+                } finally {
+                    if (canvas != null) holder.unlockCanvasAndPost(canvas);
+                }
 
                 handler.removeCallbacks(drawGIF);
                 if (visible) handler.postDelayed(drawGIF, frameDuration);

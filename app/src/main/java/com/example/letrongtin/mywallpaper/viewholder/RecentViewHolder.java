@@ -17,7 +17,7 @@ public class RecentViewHolder extends RecyclerView.ViewHolder {
     public RecentViewHolder(View itemView) {
         super(itemView);
         imgRecent = itemView.findViewById(R.id.img_recent);
-        nameRecent = itemView.findViewById(R.id.name_recent);
+        //nameRecent = itemView.findViewById(R.id.name_recent);
         timeRecent = itemView.findViewById(R.id.time_recent);
         btnDeleteRecent = itemView.findViewById(R.id.btn_delete_recent);
     }

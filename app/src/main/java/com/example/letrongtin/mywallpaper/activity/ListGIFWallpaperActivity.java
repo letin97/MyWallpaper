@@ -100,11 +100,19 @@ public class ListGIFWallpaperActivity extends AppCompatActivity {
                 holder.setItemClickListener(new ItemClickListener() {
                     @Override
                     public void onClick(View view, int position) {
-                        GIFWallpaperService.gifAddr = model.getImageLink();
-                        Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
-                        intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                new ComponentName(ListGIFWallpaperActivity.this.getPackageName(), GIFWallpaperService.class.getCanonicalName()));
-                        startActivity(intent);
+                        if (Common.CATEGORY_ID_SELECTED .equals("03")){
+                            GIFWallpaperService.gifAddr = model.getImageLink();
+                            Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+                            intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                                    new ComponentName(ListGIFWallpaperActivity.this.getPackageName(), GIFWallpaperService.class.getCanonicalName()));
+                            startActivity(intent);
+                        } else{
+                            Intent intent = new Intent(ListGIFWallpaperActivity.this, WallpaperDetail.class);
+                            intent.putExtra("imageLink", model.getImageLink());
+                            intent.putExtra("key", adapter.getRef(position).getKey());
+                            startActivity(intent);
+                        }
+
                     }
                 });
 
