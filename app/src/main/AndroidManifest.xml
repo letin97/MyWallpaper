@@ -56,12 +56,22 @@
         </activity>
         <activity
             android:name=".activity.HomeActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activity.ListWallpaper" />
-        <activity android:name=".activity.WallpaperDetail" />
-        <activity android:name=".activity.ListGIFWallpaperActivity">
-
+        <activity
+            android:name=".activity.ListWallpaper"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.WallpaperDetail"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.ListGIFWallpaperActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 
